@@ -210,7 +210,7 @@ startVMPlaybook()
 	ssh-keygen -q -f $PWD/id_rsa -t rsa -N ''
 	# The BUILD_ID variable is required to stop Jenkins shutting down the wrong VMS 
 	# See https://github.com/AdoptOpenJDK/openjdk-infrastructure/issues/1287#issuecomment-625142917
-	BUILD_ID=dontKillMe vagrant up
+	vagrant up
 	# FreeBSD12 / Debian10 uses an rsync shared folder type- required to get hosts.tmp from VM
 	if [[ "$OS" == "FreeBSD12" || "$OS" == "Debian10" ]]; then
                vagrant rsync-back
@@ -255,7 +255,7 @@ startVMPlaybookWin()
 	rm -f playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win
 	# The BUILD_ID variable is required to stop Jenkins shutting down the wrong VMS
         # See https://github.com/AdoptOpenJDK/openjdk-infrastructure/issues/1287#issuecomment-625142917
-	BUILD_ID=dontKillMe vagrant up
+	vagrant up
 	cat playbooks/AdoptOpenJDK_Windows_Playbook/hosts.tmp | tr -d \\r | sort -nr | head -1 > playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win
 	echo "This is the content of hosts.win : " && cat playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win
 	# Changes the value of "hosts" in main.yml
