@@ -226,6 +226,8 @@ startVMPlaybook()
 	# NOTE! Only works with GNU sed
 	! grep -q "timeout" ansible.cfg && sed -i -e 's/\[defaults\]/&\ntimeout = 30/g' ansible.cfg
 	! grep -q "private_key_file" ansible.cfg && sed -i -e 's/\[defaults\]/&\nprivate_key_file = id_rsa/g' ansible.cfg
+	# Sends null ssh packets every 10 seconds
+	! grep -q "ServerAliveInterval" ansible.cfg && sed '/ControlPersist=60s/  s/$/ -o ServerAliveInterval=10/' ansible.cfg
 	ansible-playbook -i playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx -u vagrant -b --skip-tags adoptopenjdk,jenkins${skipFullSetup} playbooks/AdoptOpenJDK_Unix_Playbook/main.yml 2>&1 | tee $WORKSPACE/adoptopenjdkPBTests/logFiles/$folderName.$branchName.$OS.log
 	echo The playbook finished at : `date +%T`
 	searchLogFiles $OS
