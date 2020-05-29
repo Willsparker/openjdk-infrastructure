@@ -43,7 +43,7 @@ processArgs()
 			"--clean-workspace" | "-c" )
 				cleanWorkspace=true;;
 			"--new-vagrant-files" | "-nv" )
-				newVagrantFiles=true;;
+/label/infra-softlayer-ubuntu1804-x64-1/adoptopenjdkPBTests/openjdk-infrastructure-VPC_Testing/ansible 				newVagrantFiles=true;;
 			"--skip-more" | "-sm" )
 				fastMode=true;;
 			"--build-repo" | "-br" )
@@ -210,7 +210,7 @@ startVMPlaybook()
 	ssh-keygen -q -f $PWD/id_rsa -t rsa -N ''
 	# The BUILD_ID variable is required to stop Jenkins shutting down the wrong VMS 
 	# See https://github.com/AdoptOpenJDK/openjdk-infrastructure/issues/1287#issuecomment-625142917
-	vagrant up
+	BUILD_ID=dontKillMe_$OS vagrant up
 	# FreeBSD12 / Debian10 uses an rsync shared folder type- required to get hosts.tmp from VM
 	if [[ "$OS" == "FreeBSD12" || "$OS" == "Debian10" ]]; then
                vagrant rsync-back
@@ -227,18 +227,18 @@ startVMPlaybook()
 	! grep -q "timeout" ansible.cfg && sed -i -e 's/\[defaults\]/&\ntimeout = 30/g' ansible.cfg
 	! grep -q "private_key_file" ansible.cfg && sed -i -e 's/\[defaults\]/&\nprivate_key_file = id_rsa/g' ansible.cfg
 	# Sends null ssh packets every 10 seconds
-	! grep -q "ServerAliveInterval" ansible.cfg && sed '/ControlPersist=60s/  s/$/ -o ServerAliveInterval=10/' ansible.cfg
-	ansible-playbook -i playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx -u vagrant -b --skip-tags adoptopenjdk,jenkins${skipFullSetup} playbooks/AdoptOpenJDK_Unix_Playbook/main.yml 2>&1 | tee $WORKSPACE/adoptopenjdkPBTests/logFiles/$folderName.$branchName.$OS.log
+	! grep -q "ServerAliveInterval" ansible.cfg && sed -i '/ControlPersist=60s/  s/$/ -o ServerAliveInterval=10/' ansible.cfg
+	BUILD_ID=dontKillMe_$OS ansible-playbook -i playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx -u vagrant -b --skip-tags adoptopenjdk,jenkins${skipFullSetup} playbooks/AdoptOpenJDK_Unix_Playbook/main.yml 2>&1 | tee $WORKSPACE/adoptopenjdkPBTests/logFiles/$folderName.$branchName.$OS.log
 	echo The playbook finished at : `date +%T`
 	searchLogFiles $OS
 	local pb_failed=$?
 	cd $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible
 	[[ "$pb_failed" != 0 ]] && echo "Playbook failed, returning" && return 1
 	if [[ "$testNativeBuild" = true && "$pb_failed" == 0 ]]; then
-		ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot"
+		BUILD_ID=dontKillMe_$OS ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot"
 		echo The build finished at : `date +%T`
 		if [[ "$runTest" = true ]]; then
-	        	ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./testJDK.sh"
+	        	BUILD_ID=dontKillMe_$OS ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./testJDK.sh"
 			echo The test finished at : `date +%T`
 		fi
 	fi
