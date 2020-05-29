@@ -233,6 +233,7 @@ startVMPlaybook()
 	searchLogFiles $OS
 	local pb_failed=$?
 	cd $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible
+	[[ "$pb_failed" != 0 ]] && echo "Playbook failed, returning" && return 1
 	if [[ "$testNativeBuild" = true && "$pb_failed" == 0 ]]; then
 		ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot"
 		echo The build finished at : `date +%T`
