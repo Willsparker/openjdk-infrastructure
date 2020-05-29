@@ -43,7 +43,7 @@ processArgs()
 			"--clean-workspace" | "-c" )
 				cleanWorkspace=true;;
 			"--new-vagrant-files" | "-nv" )
-/label/infra-softlayer-ubuntu1804-x64-1/adoptopenjdkPBTests/openjdk-infrastructure-VPC_Testing/ansible 				newVagrantFiles=true;;
+ 				newVagrantFiles=true;;
 			"--skip-more" | "-sm" )
 				fastMode=true;;
 			"--build-repo" | "-br" )
