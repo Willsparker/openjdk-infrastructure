@@ -210,7 +210,7 @@ startVMPlaybook()
 	ssh-keygen -q -f $PWD/id_rsa -t rsa -N ''
 	# The BUILD_ID variable is required to stop Jenkins shutting down the wrong VMS 
 	# See https://github.com/AdoptOpenJDK/openjdk-infrastructure/issues/1287#issuecomment-625142917
-	BUILD_ID=dontKillMe_$OS vagrant up
+	BUILD_ID=dontKillMe vagrant up
 	# FreeBSD12 / Debian10 uses an rsync shared folder type- required to get hosts.tmp from VM
 	if [[ "$OS" == "FreeBSD12" || "$OS" == "Debian10" ]]; then
                vagrant rsync-back
@@ -228,17 +228,17 @@ startVMPlaybook()
 	! grep -q "private_key_file" ansible.cfg && sed -i -e 's/\[defaults\]/&\nprivate_key_file = id_rsa/g' ansible.cfg
 	# Sends null ssh packets every 10 seconds
 	! grep -q "ServerAliveInterval" ansible.cfg && sed -i '/ControlPersist=60s/  s/$/ -o ServerAliveInterval=10/' ansible.cfg
-	BUILD_ID=dontKillMe_$OS ansible-playbook -i playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx -u vagrant -b --skip-tags adoptopenjdk,jenkins${skipFullSetup} playbooks/AdoptOpenJDK_Unix_Playbook/main.yml 2>&1 | tee $WORKSPACE/adoptopenjdkPBTests/logFiles/$folderName.$branchName.$OS.log
+	BUILD_ID=dontKillMe ansible-playbook -i playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx -u vagrant -b --skip-tags adoptopenjdk,jenkins${skipFullSetup} playbooks/AdoptOpenJDK_Unix_Playbook/main.yml 2>&1 | tee $WORKSPACE/adoptopenjdkPBTests/logFiles/$folderName.$branchName.$OS.log
 	echo The playbook finished at : `date +%T`
 	searchLogFiles $OS
 	local pb_failed=$?
 	cd $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible
 	[[ "$pb_failed" != 0 ]] && echo "Playbook failed, returning" && return 1
 	if [[ "$testNativeBuild" = true && "$pb_failed" == 0 ]]; then
-		BUILD_ID=dontKillMe_$OS ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot"
+		ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot"
 		echo The build finished at : `date +%T`
 		if [[ "$runTest" = true ]]; then
-	        	BUILD_ID=dontKillMe_$OS ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./testJDK.sh"
+	        	ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./testJDK.sh"
 			echo The test finished at : `date +%T`
 		fi
 	fi
@@ -258,7 +258,7 @@ startVMPlaybookWin()
 	rm -f playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win
 	# The BUILD_ID variable is required to stop Jenkins shutting down the wrong VMS
         # See https://github.com/AdoptOpenJDK/openjdk-infrastructure/issues/1287#issuecomment-625142917
-	vagrant up
+	BUILD_ID=dontKillMe vagrant up
 	cat playbooks/AdoptOpenJDK_Windows_Playbook/hosts.tmp | tr -d \\r | sort -nr | head -1 > playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win
 	echo "This is the content of hosts.win : " && cat playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win
 	# Changes the value of "hosts" in main.yml
@@ -279,13 +279,13 @@ startVMPlaybookWin()
 	cd $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible
         if [[ "$testNativeBuild" = true && "$pbFailed" == 0 ]]; then
 		# Restarting the VM as the shared folder disappears after the playbook runs. (Possibly due to the restarts in the playbook)
-		vagrant halt && vagrant up
+		vagrant halt && BUILD_ID=dontKillMe vagrant up
 		# Runs the build script via ansible, as vagrant powershell gives error messages that ansible doesn't. 
         	# See: https://github.com/AdoptOpenJDK/openjdk-infrastructure/pull/942#issuecomment-539946564
 		python pbTestScripts/startScriptWin.py -i $(cat playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win) -a "$buildURL $jdkToBuild $buildHotspot" -b
 		echo The build finished at : `date +%T`
 		if [[ "$runTest" = true ]]; then
-			vagrant halt && vagrant up
+			vagrant halt && BUILD_ID=dontKillMe vagrant up
 			# Runs a script on the VM to test the built JDK
 			python pbTestScripts/startScriptWin.py -i $(cat playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win) -t
 			echo The test finished at : `date +%T`
