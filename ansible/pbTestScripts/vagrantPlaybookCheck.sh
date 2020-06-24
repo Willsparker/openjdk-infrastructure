@@ -342,6 +342,7 @@ do
 	else
 		startVMPlaybook $OS
 	fi
+	ssh $(cat $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible/playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx) uptime
   	if [[ "$vmHalt" == true ]]; then
                 vagrant halt 
 	fi
