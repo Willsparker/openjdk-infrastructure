@@ -210,7 +210,7 @@ startVMPlaybook()
 	ssh-keygen -q -f $PWD/id_rsa -t rsa -N ''
 	# The BUILD_ID variable is required to stop Jenkins shutting down the wrong VMS 
 	# See https://github.com/AdoptOpenJDK/openjdk-infrastructure/issues/1287#issuecomment-625142917
-	BUILD_ID=dontKillMe vagrant up
+	BUILD_ID=dontKillMe$$ vagrant up
 	# FreeBSD12 / Debian10 uses an rsync shared folder type- required to get hosts.tmp from VM
 	if [[ "$OS" == "FreeBSD12" || "$OS" == "Debian10" ]]; then
                vagrant rsync-back
@@ -232,10 +232,10 @@ startVMPlaybook()
 	local pb_failed=$?
 	cd $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible
 	if [[ "$testNativeBuild" = true && "$pb_failed" == 0 ]]; then
-		ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot" || true
+		BUILD_ID=dontKillMe$$ ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot" || true
 		echo The build finished at : `date +%T`
 		if [[ "$runTest" = true ]]; then
-	        	ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./testJDK.sh" || true
+	        	BUILD_ID=dontKillMe$$ ssh -i $PWD/id_rsa vagrant@$vagrantIP "cd /vagrant/pbTestScripts && ./testJDK.sh" || true
 			echo The test finished at : `date +%T`
 		fi
 	fi
