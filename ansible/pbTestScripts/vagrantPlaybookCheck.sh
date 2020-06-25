@@ -342,8 +342,6 @@ do
 	else
 		startVMPlaybook $OS
 	fi
-	echo "SSH UPTIME ROOT:"
-	ssh -i $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible/id_rsa root@$(cat $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible/playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx) uptime
 	echo "SSH UPTIME VAGRANT:"
 	ssh -i $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible/id_rsa vagrant@$(cat $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible/playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx) uptime
   	if [[ "$vmHalt" == true ]]; then
