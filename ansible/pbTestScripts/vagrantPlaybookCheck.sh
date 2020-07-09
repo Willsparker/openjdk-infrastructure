@@ -218,7 +218,7 @@ startVMPlaybook()
 	# Generate hosts.unx file for Ansible to use, remove prior hosts.unx if there
 	[[ -f playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx ]] && rm playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx
 #	cat playbooks/AdoptOpenJDK_Unix_Playbook/hosts.tmp | tr -d \\r | sort -nr | head -1 > playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx && rm playbooks/AdoptOpenJDK_Unix_Playbook/hosts.tmp
-        echo "127.0.0.1:$(vagrant  port | grep host | awk '{ print $4 }')" >> playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx
+        echo "[127.0.0.1]:$(vagrant  port | grep host | awk '{ print $4 }')" >> playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx
 	echo "This is the contents of hosts.unx: $(cat playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx)"
         local vagrantIP=$(cat playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx)
 	# Remove IP from known_hosts if already found
