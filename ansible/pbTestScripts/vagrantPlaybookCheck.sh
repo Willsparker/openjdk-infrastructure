@@ -222,7 +222,7 @@ startVMPlaybook()
 	echo "This is the contents of hosts.unx: $(cat playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx)"
         local vagrantIP=$(cat playbooks/AdoptOpenJDK_Unix_Playbook/hosts.unx)
 	# Remove IP from known_hosts if already found
-	grep -q "$vagrantIP" ~/.ssh/known_hosts && ssh-keygen -R $vagrantIP
+	ssh-keygen -R $vagrantIP
 	sed -i -e "s/.*hosts:.*/- hosts: all/g" playbooks/AdoptOpenJDK_Unix_Playbook/main.yml
 	# Alter ansible.cfg to increase timeout and to specify which private key to use
 	# NOTE! Only works with GNU sed
@@ -234,6 +234,7 @@ startVMPlaybook()
 	local pb_failed=$?
 	cd $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible
 	if [[ "$testNativeBuild" = true && "$pb_failed" == 0 ]]; then
+		ssh-keygen -R $vagrantIP
 		ssh -p $(vagrant  port | grep host | awk '{ print $4 }') -i $PWD/id_rsa vagrant@127.0.0.1 "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot"
 		echo The build finished at : `date +%T`
 		if [[ "$runTest" = true ]]; then
