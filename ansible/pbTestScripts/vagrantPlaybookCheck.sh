@@ -234,7 +234,6 @@ startVMPlaybook()
 	local pb_failed=$?
 	cd $WORKSPACE/adoptopenjdkPBTests/$folderName-$branchName/ansible
 	if [[ "$testNativeBuild" = true && "$pb_failed" == 0 ]]; then
-		ssh-keygen -R $vagrantIP
 		ssh -p $(vagrant  port | grep host | awk '{ print $4 }') -i $PWD/id_rsa vagrant@127.0.0.1 "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildURL $jdkToBuild $buildHotspot"
 		echo The build finished at : `date +%T`
 		if [[ "$runTest" = true ]]; then
