@@ -193,7 +193,7 @@ runPlaybook() {
 	fi
 
 	if [[ "$buildJDK" == true ]]; then
-		ssh linux@localhost -p "$PORTNO" -i "$workFolder"/id_rsa "git clone https://github.com/adoptopenjdk/openjdk-infrastructure \$HOME/openjdk-infrastructure && \$HOME/openjdk-infrastructure/ansible/pbTestScripts/buildJDK.sh --version $jdkToBuild"
+		ssh linux@localhost -p "$PORTNO" -i "$workFolder"/id_rsa "git clone -b TEST_BRNCH https://github.com/willsparker/openjdk-infrastructure \$HOME/openjdk-infrastructure && \$HOME/openjdk-infrastructure/ansible/pbTestScripts/buildJDK.sh --version $jdkToBuild"
 		if [[ "$testJDK" == true ]]; then
 			ssh linux@localhost -p "$PORTNO" -i "$workFolder"/id_rsa "\$HOME/openjdk-infrastructure/ansible/pbTestScripts/testJDK.sh" 
 		fi	
