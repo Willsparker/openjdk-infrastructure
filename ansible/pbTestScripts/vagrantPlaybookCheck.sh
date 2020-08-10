@@ -300,7 +300,10 @@ startVMPlaybookWin()
 	then
 		# Add the "ansible_winrm_transport" to adoptopenjdk_variables.yml
 		echo -e "\nansible_winrm_transport: credssp" >> playbooks/AdoptOpenJDK_Windows_Playbook/group_vars/all/adoptopenjdk_variables.yml
+		echo -e "\nansible_winrm_operation_timeout_sec: 60" >> playbooks/AdoptOpenJDK_Windows_Playbook/group_vars/all/adoptopenjdk_variables.yml
+		echo -e "\nansible_winrm_read_timeout_sec: 90" >> playbooks/AdoptOpenJDK_Windows_Playbook/group_vars/all/adoptopenjdk_variables.yml
 	fi
+	[ ! grep -q "winrm_operation" playbooks/AdoptOpenJDK_Windows_Playbook/group_vars/all/adoptopenjdk_variables.yml ] && 
 	
 	# Run the ansible playbook on the VM & logs the output.
 	ansible-playbook -i playbooks/AdoptOpenJDK_Windows_Playbook/hosts.win -u vagrant --skip-tags jenkins,adoptopenjdk${skipFullSetup} playbooks/AdoptOpenJDK_Windows_Playbook/main.yml 2>&1 | tee $pbLogPath
