@@ -20,6 +20,7 @@
   #########
   roles:
     - Debug
+    - Python
     - role: Get_Vendor_Files
       tags: [vendor_files, adoptopenjdk]
     - Version
