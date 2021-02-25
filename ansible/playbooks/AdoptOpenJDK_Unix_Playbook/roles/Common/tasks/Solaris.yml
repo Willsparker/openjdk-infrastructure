@@ -94,17 +94,11 @@
     - build_tools
     - cups
 
-- name: Download cups 1.4.4
-  command: wget https://github.com/apple/cups/releases/download/release-1.4.4/cups-1.4.4-source.tar.gz -O /tmp/cups-1.4.4-source.tar.gz
-  when: not cups_installed.stat.exists
-  tags:
-    - build_tools
-    - cups
-
-- name: Extract cups 1.4.4
-  shell: tar -xf cups-1.4.4-source.tar.gz
-  args:
-    chdir: /tmp
+- name: Download and Unarchive cups 1.4.4
+  unarchive:
+    src: https://github.com/apple/cups/releases/download/release-1.4.4/cups-1.4.4-source.tar.gz -O /tmp/cups-1.4.4-source.tar.gz
+    dest: /tmp
+    remote_src: yes
   when: not cups_installed.stat.exists
   tags:
     - build_tools
