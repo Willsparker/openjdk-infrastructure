@@ -198,6 +198,7 @@ startVMPlaybook()
 	local OS=$1
 	local vagrantPORT=""
 	local pbLogPath="$WORKSPACE/adoptopenjdkPBTests/logFiles/${gitFork}.${gitBranch}.$OS.log"
+	local ssh_args=""
 
 	cd $WORKSPACE/adoptopenjdkPBTests/${gitFork}-${gitBranch}/ansible
 	if [ "$newVagrantFiles" = "true" ]; then
@@ -217,6 +218,7 @@ startVMPlaybook()
 		if [ -r /tmp/SolarisStudio12.3-solaris-x86-pkg ]; then
 			cp -r /tmp/SolarisStudio12.3-solaris-x86-pkg .
 		fi 
+		ssh_args="-o KexAlgorithms=diffie-hellman-group1-sha1"
 	fi
 
 	# The BUILD_ID variable is required to stop Jenkins shutting down the wrong VMS 
@@ -243,7 +245,7 @@ startVMPlaybook()
 
 	if [[ "$testNativeBuild" = true ]]; then
 		local buildLogPath="$WORKSPACE/adoptopenjdkPBTests/logFiles/${gitFork}.${gitBranch}.$OS.build_log"
-		ssh -p ${vagrantPORT} -i $PWD/id_rsa vagrant@127.0.0.1 "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildBranch $buildFork $jdkToBuild $buildHotspot" 2>&1 | tee $buildLogPath
+		ssh -p ${vagrantPORT} $ssh_args -i $PWD/id_rsa vagrant@127.0.0.1 "cd /vagrant/pbTestScripts && ./buildJDK.sh $buildBranch $buildFork $jdkToBuild $buildHotspot" 2>&1 | tee $buildLogPath
 		echo The build finished at : `date +%T`
 		if grep -q '] Error' $buildLogPath || grep -q 'configure: error' $buildLogPath; then
 			echo BUILD FAILED
@@ -252,7 +254,7 @@ startVMPlaybook()
 
 		if [[ "$runTest" = true ]]; then
 			local testLogPath="$WORKSPACE/adoptopenjdkPBTests/logFiles/${gitFork}.${gitBranch}.$OS.test_log"
-			ssh -p ${vagrantPORT} -i $PWD/id_rsa vagrant@127.0.0.1 "cd /vagrant/pbTestScripts && ./testJDK.sh" 2>&1 | tee $testLogPath
+			ssh -p ${vagrantPORT} $ssh_args -i $PWD/id_rsa vagrant@127.0.0.1 "cd /vagrant/pbTestScripts && ./testJDK.sh" 2>&1 | tee $testLogPath
 			echo The test finished at : `date +%T`
 			if ! grep -q 'FAILED: 0' $testLogPath; then
 				echo TEST FAILED
