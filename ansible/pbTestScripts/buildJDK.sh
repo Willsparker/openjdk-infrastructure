@@ -103,6 +103,12 @@ if [[ $(uname) == "FreeBSD" ]]; then
         export JAVA_TO_BUILD=jdk11u
         export JDK_BOOT_DIR=/usr/local/openjdk11
         export JAVA_HOME=/usr/local/openjdk8
+elif [[ $(uname) == "SunOS" ]]; then
+	echo "Running on Solaris/SunOS"
+	export TARGET_OS=solaris
+	echo "We only build Solaris on JDK8/HS"
+	export VARIANT=hotspot
+	export JAVA_TO_BUILD=jdk8u
 fi
 
 # Required as Debian Buster doesn't have gcc-4.8 available
