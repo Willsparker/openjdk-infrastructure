@@ -110,6 +110,7 @@ elif [[ $(uname) == "SunOS" ]]; then
 	echo "We only build Solaris on JDK8/HS"
 	export VARIANT=hotspot
 	export JAVA_TO_BUILD=jdk8u
+	export JAVA_HOME=/usr/lib/jvm/jdk8
 fi
 
 # Required as Debian Buster doesn't have gcc-4.8 available
